@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pushall(){
-    git add *
+    find . * | grep -R -l --exclude-dir=.git . | xargs git add
     git commit -m "$1"
     git push origin master
 }
