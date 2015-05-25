@@ -2,11 +2,12 @@
 module Elevator(
                 input        reset,
                 input [8:0]  Button,
-                input [3:0]  NewFloor,
-                input        Door,
+                input [3:0]  TargetFloor,
                 input        clk,
                 output [2:0] FloorCurrent,
-                output [1:0] DirectCurrent
+                output [1:0] DirectCurrent,
+                output       DoorCurrent,
+                output       TargetOff  //Signal for Change a Target Floor
                 );
 
    parameter CLK_DELAY_OPEN = 50,
@@ -33,11 +34,11 @@ module Elevator(
           begin
              if (Direct == 2'b00)
                begin
-                  if (NewFloor != 4'b0000)
+                  if (TargetFloor != 4'b0000)
                     begin
-                       Direct <= {(NewFloor > Floor), (NewFloor < Floor)};
+                       Direct <= {(TargetFloor > Floor), (TargetFloor < Floor)};
                     end
-                  if (NewFloor == Floor)
+                  if (TargetFloor == Floor)
                     begin
                        DoorState <= OPEN;
                        counter <= CLK_DELAY_OPEN;
