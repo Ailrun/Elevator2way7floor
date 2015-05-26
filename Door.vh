@@ -1,14 +1,14 @@
 `timescale 1ns / 1ps
 module Door#(parameter CLK_PER_OPEN=500000000)
-   (
-    input        clk,
-    input        reset,
-    input [2:0]  currentFloor,
-    input [1:0]  currentDirection,
-    input [1:0]  currentFloorButton,
-    input [9:1]  internalButton,
-    output       doorState
-    );
+   ( //second
+     input       clk,
+     input       reset,
+     input [2:0] currentFloor,
+     input [1:0] currentDirection,
+     input [1:0] currentFloorButton,
+     input [9:1] internalButton,
+     output      doorState
+     );
 
    /*reset signal also act a role of moving detector
      (When Ele is moving, reset of door is on)*/
@@ -19,7 +19,7 @@ module Door#(parameter CLK_PER_OPEN=500000000)
      ON = 1'b1, OFF = 1'b0,
      OPEN = 1'b1, CLOSE = 1'b0,
      INIT = 32'b0,
-     STOP = 2'b00;
+     STOP = 2'b00, UP = 2'b10, DOWN = 2'b01, UPDOWN = 2'b11;
 
    reg          doorState;
    reg [31:0]   counter;
@@ -39,7 +39,7 @@ module Door#(parameter CLK_PER_OPEN=500000000)
      begin
         if (reset == ON)
           begin
-             doorOpen <= CLOSE;
+             doorState <= CLOSE;
              counter  <= INIT;
           end
         else
@@ -53,7 +53,7 @@ module Door#(parameter CLK_PER_OPEN=500000000)
                end
              else if (counter == INIT)
                begin
-                  if (doorOpen == OPEN)
+                  if (doorState == OPEN)
                     doorState <= CLOSE;
                end
              else

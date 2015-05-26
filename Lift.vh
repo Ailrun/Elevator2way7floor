@@ -1,19 +1,17 @@
 `timescale 1ns / 1ps
 module Lift#(parameter CLK_PER_MOVE = 1000000000, CLK_PER_HOLD = 10000000)
-   (
-    input        clk,
-    input        reset,
-    input        hold,
-    input [2:0]  currentFloor,
-    input [1:0]  currentDirection,
-    output [2:0] nextFloor,
-    output       move
-    );
+   ( //third
+     input        clk,
+     input        reset,
+     input        hold,
+     input [2:0]  currentFloor,
+     input [1:0]  currentDirection,
+     output [2:0] nextFloor,
+     output       move
+     );
 
-   localparam STOP = 2'b00,
-     UP = 2'b10, DOWN = 2'b01,
-     UPDOWN = 2'b11,
-     ON = 1'b1, OFF = 1'b0,
+   localparam ON = 1'b1, OFF = 1'b0,
+     STOP = 2'b00, UP = 2'b10, DOWN = 2'b01, UPDOWN = 2'b11,
      INIT = 32'b0,
      F_FST = 3'b1;
 
@@ -60,7 +58,7 @@ module Lift#(parameter CLK_PER_MOVE = 1000000000, CLK_PER_HOLD = 10000000)
                            end
                          UP :
                            begin
-                              if (currentFloor + 1 <= 7)
+                              if (currentFloor < 7)
                                 begin
                                    nextFloor <= currentFloor + 1;
                                    move <= ON;
@@ -71,7 +69,7 @@ module Lift#(parameter CLK_PER_MOVE = 1000000000, CLK_PER_HOLD = 10000000)
                            end // case: UP
                          DOWN :
                            begin
-                              if (currentFloor - 1 >= 1)
+                              if (currentFloor > 1)
                                 begin
                                    nextFloor <= currentFloor - 1;
                                    move <= ON;

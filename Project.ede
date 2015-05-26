@@ -1,0 +1,6 @@
+;; Object Elevator2way7floor
+;; EDE Project Files are auto generated: Do Not Edit
+(ede-proj-project "Elevator2way7floor"
+  :file "Project.ede"
+  :name "Elevator2way7floor"
+  :targets nil)

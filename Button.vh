@@ -1,16 +1,16 @@
 `timescale 1ns / 1ps
-module Button // after Door, Director, before Lift
-  (
-   input         clk,
-   input         reset,
-   input [2:0]   currentFloor,
-   input [1:0]   currentDirection,
-   input [13:0]  floorButton,
-   input [9:1]   currentButton,
-   input         doorState,
-   output [13:0] nextFloorButton,
-   output [9:1]  nextButton
-   );
+module Button
+  ( //last
+    input         clk,
+    input         reset,
+    input [2:0]   currentFloor,
+    input [1:0]   currentDirection,
+    input [1:0]   currentFloorButton,
+    input [9:1]   internalButton,
+    input         doorState,
+    output [13:0] nextFloorButton,
+    output [9:1]  nextButton
+    );
 
    localparam NO_FB = 14'b0, NO_B = 9'b0,
      OPEN = 1'b1, CLOSE = 1'b0,
@@ -21,7 +21,7 @@ module Button // after Door, Director, before Lift
 
    always @(posedge clk)
      begin
-        if (reset == 1)
+        if (reset == ON)
           begin
              nextFloorButton <= NO_FB;
              nextButton <= NO_B;
@@ -32,24 +32,24 @@ module Button // after Door, Director, before Lift
                begin
                   for (integer i = 0; i < 14; i = i + 1)
                     begin
-                       nextFloorButton[i] <= (i/2 == currentFloor)?
+                       nextFloorButton[i] <= (i/2 == currentFloor-1)?
                                    floorButton[i] & ~currentDirection[i-i/2*2]:
                                    floorButton[i];
                     end
                   for (integer i = 1; i < 10; i = i + 1)
                     begin
-                       nextButton[i] <= (i == currentFloor-1)?
-                                   0 : currentButton[i];
+                       nextButton[i] <= (i == currentFloor)?
+                                   OFF : internalButton[i];
                     end
                end // if (doorState == OPEN)
-             else
+             else if (move == HOLD)
                begin
                   for (integer i = 1; i < 10; i = i + 1)
                     begin
-                       nextButton[i] <= (i == currentFloor-1)?
-                                   0 : currentButton[i];
+                       nextButton[i] <= (i == currentFloor)?
+                                   OFF : internalButton[i];
                     end
-               end // else: !if(doorState == OPEN)
-          end // else: !if(reset == 1)
+               end
+          end // else: !if(reset == ON)
      end // always @ (posedge clk)
 endmodule // Button
