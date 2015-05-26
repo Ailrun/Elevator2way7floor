@@ -2,13 +2,13 @@
 
 module Lift#(parameter CLK_PER_MOVE = 1000000000, CLK_PER_HOLD = 10000000)
    ( //third
-     input        clk,
-     input        reset,
-     input        doorState,
-     input [2:0]  currentFloor,
-     input [1:0]  currentDirection,
-     output [2:0] nextFloor,
-     output       move
+     input            clk,
+     input            reset,
+     input            doorState,
+     input [2:0]      currentFloor,
+     input [1:0]      currentDirection,
+     output reg [2:0] nextFloor,
+     output reg       move
      );
 
    localparam ON = 1'b1, OFF = 1'b0,
@@ -16,8 +16,6 @@ module Lift#(parameter CLK_PER_MOVE = 1000000000, CLK_PER_HOLD = 10000000)
      INIT = 32'b0,
      F_FST = 3'b1;
 
-   reg [2:0]     nextFloor;
-   reg           move;
    reg [31:0]    counter;
 
    /*

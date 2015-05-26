@@ -10,7 +10,7 @@ module Director
     input [9:1]  internalButton,
     input        doorState,
     input        move,
-    output [1:0] nextDirection
+    output reg [1:0] nextDirection
     );
 
    localparam ON = 1'b1, OFF = 1'b0,
@@ -18,7 +18,6 @@ module Director
      OPEN = 1'b1, CLOSE = 1'b0,
      STOP = 2'b00, UP = 2'b10, DOWN = 2'b01, UPDOWN = 2'b11;
 
-   reg [1:0]    nextDirection;
    wire         anyUpper = upper(currentFloor, floorButton, internalButton);
    wire         anyLower = lower(currentFloor, floorButton, internalButton);
 

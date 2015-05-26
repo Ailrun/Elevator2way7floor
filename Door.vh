@@ -8,7 +8,7 @@ module Door#(parameter CLK_PER_OPEN=500000000)
      input [1:0] currentDirection,
      input [1:0] currentFloorButton,
      input [9:1] internalButton,
-     output      doorState
+     output reg  doorState
      );
 
    /*reset signal also act a role of moving detector
@@ -22,7 +22,6 @@ module Door#(parameter CLK_PER_OPEN=500000000)
      INIT = 32'b0,
      STOP = 2'b00, UP = 2'b10, DOWN = 2'b01, UPDOWN = 2'b11;
 
-   reg          doorState;
    reg [31:0]   counter;
 
    /*
