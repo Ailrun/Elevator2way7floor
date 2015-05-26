@@ -31,7 +31,7 @@ module Elevator#(parameter CLK_PER_OPEN = 500000000, CLK_PER_MOVE = 1000000000, 
 
    Director
    director(clk, (sequenceChecker == 0), reset,
-            currentFloor, currentDirection, floorButton, internalButton,
+            currentFloor, currentDirection, floorButton, internalButton[7:1],
             doorState, move,
             nextDirection);
 

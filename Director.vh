@@ -8,7 +8,7 @@ module Director
     input [2:0]      currentFloor,
     input [1:0]      currentDirection,
     input [13:0]     floorButton,
-    input [9:1]      internalButton,
+    input [7:1]      internalButton,
     input            doorState,
     input            move,
     output reg [1:0] nextDirection
@@ -71,7 +71,7 @@ module Director
    function upper;
       input [2:0]  currentFloor;
       input [13:0] floorButton;
-      input [9:1]  internalButton;
+      input [7:1]  internalButton;
       begin
          upper = (currentFloor < 2 &&
                   (internalButton[2] == ON ||
@@ -97,7 +97,7 @@ module Director
    function lower;
       input [2:0]  currentFloor;
       input [13:0] floorButton;
-      input [9:1]  internalButton;
+      input [7:1]  internalButton;
       begin
          lower = (currentFloor > 1 &&
                   (internalButton[1] == ON ||
