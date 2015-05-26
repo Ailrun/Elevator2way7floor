@@ -3,7 +3,7 @@ module Lift#(parameter CLK_PER_MOVE = 1000000000, CLK_PER_HOLD = 10000000)
    ( //third
      input        clk,
      input        reset,
-     input        hold,
+     input        doorState,
      input [2:0]  currentFloor,
      input [1:0]  currentDirection,
      output [2:0] nextFloor,
@@ -36,7 +36,7 @@ module Lift#(parameter CLK_PER_MOVE = 1000000000, CLK_PER_HOLD = 10000000)
           begin
              if (counter == INIT)
                begin
-                  if (hold == ON)
+                  if (doorState == ON)
                     begin
                        nextFloor <= currentFloor;
                        move <= OFF;

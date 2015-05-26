@@ -1,88 +1,65 @@
 `timescale 1ns / 1ps
+
+`include "Director.vh"
+`include "Door.vh"
+`include "Lift.vh"
+`include "Button.vh"
+
 module Elevator#(parameter CLK_DELAY_OPEN = 500000000, CLK_DELAY_MOVE = 1000000000)
    (
-    input        clk,
-    input        reset,
-    input [9:1]  Button,
-    input [2:0]  TargetFloor,
-    input [1:0]  TargetDirect,
-    output [2:0] FloorOut,
-    output [1:0] DirectOut,
-    output       DoorOut,
+    input         clk,
+    input         reset,
+    input [13:0]  floorButton,
+    input [9:1]   internalButton,
+    output [2:0]  nextFloor,
+    output [1:0]  nextDirection,
+    output [13:0] nextFloorButton,
+    output [9:1]  nextInternalButton,
+    output        doorState,
+    output        move
     );
 
-   localparam OPEN = 1'b1, CLOSE = 1'b0, BUTTON_O = 9, BUTTON_C = 8,
-     UP = 2'b10, DOWN = 2'b01,
-     COUNTER_ZERO = 32'b0000_0000__0000_0000__0000_0000__0000_0000;
+   localparam ON = 1'b1, OFF = 1'b0,
+     STOP = 2'b00, UP = 2'b10, DOWN = 2'b01, UPDOWN = 2'b11,
+     OPEN = 1'b1, CLOSE = 1'b0,
+     MOVE = 1'b1, HOLD = 1'b0,
+     DIREC_STAGE = 2'b00, DOOR_STAGE = 2'b01, LIFT_STAGE = 2'b10, BUTTON_STAGE = 2'b11;
 
-   reg [2:0]     Floor;     // Invalid, 1, 2, ..., 7
-   reg [1:0]     Direct;    // {Up?, Down?}
-   reg           DoorState; // Open?
-   reg [31:0]    counter;   //Clock counter
+   reg [2:0]     currentFloor;
+   reg [1:0]     currentDirection;
+   reg           doorStateSave;
+   reg           moveSave;
+   reg [1:0]     sequenceChecker;
 
+   Director director((clk && (sequenceChecker == 0)), reset, currentFloor, currentDirection, floorButton, internalButton, doorState, move, nextDirection);
+   Door     door((clk && (sequenceChecker == 1)), (reset || move), currentFloor, currentDirection, getCurrent(floorButton, currentFloor), internalButton, doorState);
+   Lift     lift((clk && (sequenceChecker == 2)), reset, doorState, currentFloor, currentDirection, nextFloor, move);
+   Button   button((clk && (sequenceChecker == 3)), reset, currentFloor, currentDirection, getCurrent(floorButton, currentFloor), internalButton, doorState, move, nextFloorButton, nextInternalButton);
 
-   function maskMake;
-      input [2:0] Floor;
-
-      begin
-         for (integer i = 0; i < NUM_FLOOR; i = i + 1)
-           maskMake[i] <= (i != Floor);
-      end
-   endfunction
-
-
-   function closestB;
-      input [7:1] Button;
-      input [2:0] Floor;
-
-      begin
-         if (Floor + 1 < 7)
-           if (Button[Floor + 1] )
-      end
-   endfunction
-
-   always @ (posedge clk)
+   always @(posedge clk)
      begin
-        if (reset == 1)
+        if (reset == ON)
           begin
-             Floor           <= 3'b001;
-             Direct          <= 2'b00;
-             DoorState       <= 1'b0;
-             counter         <= COUNTER_ZERO;
+             currentFloor <= 1;
+             currentDirection <= STOP;
+             sequenceChecker <= DIREC_STAGE;
           end
         else
-          begin
-             if (counter == 0)
-               begin
-                  if (Direct == 2'b00)
-                    begin
-                       if ((Button[7:1] & maskMake(Floor) != 7'b000_0000)
-                         begin
-                            Direct <= {(closestB(Button[7:1], Floor) > Floor),
-                                       (closestB(Button[7:1], Floor) < Floor)};
-                       if (TargetFloor != 4'b0000)
-                         begin
-                            Direct <= {(TargetFloor > Floor), (TargetFloor < Floor)};
-                         end
-                       if (TargetFloor == Floor)
-                         begin
-                            DoorState <= OPEN;
-                            counter <= CLK_DELAY_OPEN;
-                         end
-                    end // if (Direct == 2'b00)
-               end // if (counter == 0)
-             else if (DoorState == OPEN && Button[BUTTON_O])
-               begin
-                  counter <= CLK_DELAY_OPEN;
-               end
-             else if (DoorState == OPEN && Button[BUTTON_C])
-               begin
-                  counter <= 0;
-               end
-             else
-               begin
-                  counter <= counter - 1;
-               end // else: !if(counter == 0)
-          end // else: !if(reset == 1)
+          sequenceChecker <= sequenceChecker + 1;
      end // always @ (posedge clk)
-endmodule // Elevator
+
+   function [1:0] getCurrent;
+      input [13:0] floorButton;
+      input [2:0]  currentFloor;
+      begin
+         getCurrent = (currentFloor == 1) ? floorButton[1:0] :
+                      (currentFloor == 2) ? floorButton[3:2] :
+                      (currentFloor == 3) ? floorButton[5:4] :
+                      (currentFloor == 4) ? floorButton[7:6] :
+                      (currentFloor == 5) ? floorButton[9:8] :
+                      (currentFloor == 6) ? floorButton[11:10] :
+                      (currentFloor == 7) ? floorButton[13:12] : 2'b00;
+      end
+   endfunction // getCurrent
+
+endmodule

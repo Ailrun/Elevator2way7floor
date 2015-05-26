@@ -67,4 +67,19 @@ module Door#(parameter CLK_PER_OPEN=500000000)
                end // else: !if(counter == INIT)
           end // else: !if(reset == 1)
      end // always @ (posedge clk)
+
+   function isIn;
+      input [1:0] currentDirection;
+      input [1:0] currentFloorButton;
+      begin
+         case (currentDirection)
+           STOP   : isIn = (currentFloorButton == STOP);
+           UP     : isIn = (currentFloorButton == UP
+                          || currentFloorButton == UPDOWN);
+           DOWN   : isIn = (currentFloorButton == DOWN
+                            || currentFloorButton == UPDOWN);
+           UPDOWN : $display("ERROR in Door!");
+         endcase // case (currentDirection)
+      end
+   endfunction // isIn
 endmodule // Door

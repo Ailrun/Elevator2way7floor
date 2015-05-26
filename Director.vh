@@ -18,6 +18,8 @@ module Director
      STOP = 2'b00, UP = 2'b10, DOWN = 2'b01, UPDOWN = 2'b11;
 
    reg [1:0]    nextDirection;
+   wire         anyUpper = upper(currentFloor, floorButton, internalButton);
+   wire         anyLower = lower(currentFloor, floorButton, internalButton);
 
    always @(posedge clk)
      begin
@@ -61,4 +63,72 @@ module Director
                endcase // case (currentDirection)
           end // if (move == HOLD)
      end // always @ (posedge clk)
+
+   function upper;
+      input [2:0]  currentFloor;
+      input [13:0] floorButton;
+      input [9:1]  internalButton;
+      begin
+         upper = (currentFloor < 2 &&
+                  (internalButton[2] == ON ||
+                   !isIn(STOP, floorButton[3:2]))) ||
+                 (currentFloor < 3 &&
+                  (internalButton[3] == ON ||
+                   !isIn(STOP, floorButton[5:4]))) ||
+                 (currentFloor < 4 &&
+                  (internalButton[4] == ON ||
+                   !isIn(STOP, floorButton[7:6]))) ||
+                 (currentFloor < 5 &&
+                  (internalButton[5] == ON ||
+                   !isIn(STOP, floorButton[9:8]))) ||
+                 (currentFloor < 6 &&
+                  (internalButton[6] == ON ||
+                   !isIn(STOP, floorButton[11:10]))) ||
+                 (currentFloor < 7 &&
+                  (internalButton[7] == ON ||
+                   !isIn(STOP, floorButton[13:12])));
+      end
+   endfunction // upper
+
+   function lower;
+      input [2:0]  currentFloor;
+      input [13:0] floorButton;
+      input [9:1]  internalButton;
+      begin
+         lower = (currentFloor > 1 &&
+                  (internalButton[1] == ON ||
+                   !isIn(STOP, floorButton[1:0]))) ||
+                 (currentFloor > 2 &&
+                  (internalButton[2] == ON ||
+                   !isIn(STOP, floorButton[3:2]))) ||
+                 (currentFloor > 3 &&
+                  (internalButton[3] == ON ||
+                   !isIn(STOP, floorButton[5:4]))) ||
+                 (currentFloor > 4 &&
+                  (internalButton[4] == ON ||
+                   !isIn(STOP, floorButton[7:6]))) ||
+                 (currentFloor > 5 &&
+                  (internalButton[5] == ON ||
+                   !isIn(STOP, floorButton[9:8]))) ||
+                 (currentFloor > 6 &&
+                  (internalButton[6] == ON ||
+                   !isIn(STOP, floorButton[11:10])));
+      end
+   endfunction // lower
+
+   function isIn;
+      input [1:0] currentDirection;
+      input [1:0] currentFloorButton;
+      begin
+         case (currentDirection)
+           STOP   : isIn = (currentFloorButton == STOP);
+           UP     : isIn = (currentFloorButton == UP
+                            || currentFloorButton == UPDOWN);
+           DOWN   : isIn = (currentFloorButton == DOWN
+                            || currentFloorButton == UPDOWN);
+           UPDOWN : $display("ERROR in Door!");
+         endcase // case (currentDirection)
+      end
+   endfunction // isIn
+
 endmodule // Director

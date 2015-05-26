@@ -8,46 +8,50 @@ module Button
     input [1:0]   currentFloorButton,
     input [9:1]   internalButton,
     input         doorState,
+    input         move,
     output [13:0] nextFloorButton,
-    output [9:1]  nextButton
+    output [9:1]  nextInternalButton
     );
 
    localparam NO_FB = 14'b0, NO_B = 9'b0,
      OPEN = 1'b1, CLOSE = 1'b0,
-     ON = 1'b1, OFF = 1'b0;
+     ON = 1'b1, OFF = 1'b0,
+     MOVE = 1'b1, HOLD = 1'b0;
 
    reg [13:0]    nextFloorButton;
-   reg [9:1]     nextButton;
+   reg [9:1]     nextInternalButton;
+
+   integer       i;
 
    always @(posedge clk)
      begin
         if (reset == ON)
           begin
              nextFloorButton <= NO_FB;
-             nextButton <= NO_B;
+             nextInternalButton <= NO_B;
           end
         else
           begin
              if (doorState == OPEN)
                begin
-                  for (integer i = 0; i < 14; i = i + 1)
+                  for (i = 0; i < 14; i = i + 1)
                     begin
                        nextFloorButton[i] <= (i/2 == currentFloor-1)?
-                                   floorButton[i] & ~currentDirection[i-i/2*2]:
-                                   floorButton[i];
+                           currentFloorButton[i] & ~currentDirection[i-i/2*2]:
+                           currentFloorButton[i];
                     end
-                  for (integer i = 1; i < 10; i = i + 1)
+                  for (i = 1; i < 10; i = i + 1)
                     begin
-                       nextButton[i] <= (i == currentFloor)?
-                                   OFF : internalButton[i];
+                       nextInternalButton[i] <= (i == currentFloor)?
+                           OFF : internalButton[i];
                     end
                end // if (doorState == OPEN)
              else if (move == HOLD)
                begin
-                  for (integer i = 1; i < 10; i = i + 1)
+                  for (i = 1; i < 10; i = i + 1)
                     begin
-                       nextButton[i] <= (i == currentFloor)?
-                                   OFF : internalButton[i];
+                       nextInternalButton[i] <= (i == currentFloor)?
+                           OFF : internalButton[i];
                     end
                end
           end // else: !if(reset == ON)
