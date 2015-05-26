@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+
 module Door#(parameter CLK_PER_OPEN=500000000)
    ( //second
      input       clk,

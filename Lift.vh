@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+
 module Lift#(parameter CLK_PER_MOVE = 1000000000, CLK_PER_HOLD = 10000000)
    ( //third
      input        clk,

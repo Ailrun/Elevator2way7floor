@@ -5,7 +5,7 @@
 `include "Lift.vh"
 `include "Button.vh"
 
-module Elevator#(parameter CLK_DELAY_OPEN = 500000000, CLK_DELAY_MOVE = 1000000000)
+module Elevator#(parameter CLK_PER_OPEN = 500000000, CLK_PER_MOVE = 1000000000, CLK_PER_HOLD = 10000000)
    (
     input         clk,
     input         reset,
@@ -31,10 +31,28 @@ module Elevator#(parameter CLK_DELAY_OPEN = 500000000, CLK_DELAY_MOVE = 10000000
    reg           moveSave;
    reg [1:0]     sequenceChecker;
 
-   Director director((clk && (sequenceChecker == 0)), reset, currentFloor, currentDirection, floorButton, internalButton, doorState, move, nextDirection);
-   Door     door((clk && (sequenceChecker == 1)), (reset || move), currentFloor, currentDirection, getCurrent(floorButton, currentFloor), internalButton, doorState);
-   Lift     lift((clk && (sequenceChecker == 2)), reset, doorState, currentFloor, currentDirection, nextFloor, move);
-   Button   button((clk && (sequenceChecker == 3)), reset, currentFloor, currentDirection, getCurrent(floorButton, currentFloor), internalButton, doorState, move, nextFloorButton, nextInternalButton);
+   Director#()
+   director((clk && (sequenceChecker == 0)), reset,
+            currentFloor, currentDirection, floorButton, internalButton,
+            doorState, move,
+            nextDirection);
+
+   Door#(CLK_PER_OPEN)
+   door((clk && (sequenceChecker == 1)), (reset || move),
+        currentFloor, currentDirection,
+        getCurrent(floorButton, currentFloor), internalButton,
+        doorState);
+
+   Lift#(CLK_PER_MOVE, CLK_PER_HOLD)
+   lift((clk && (sequenceChecker == 2)), reset,
+        doorState, currentFloor, currentDirection,
+        nextFloor, move);
+
+   Button#()
+   button((clk && (sequenceChecker == 3)), reset,
+          currentFloor, currentDirection,
+          getCurrent(floorButton, currentFloor), internalButton, doorState, move,
+          nextFloorButton, nextInternalButton);
 
    always @(posedge clk)
      begin
