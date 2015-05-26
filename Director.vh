@@ -3,7 +3,7 @@
 module Director
   ( //first
     input            clk,
-    input            enable
+    input            enable,
     input            reset,
     input [2:0]      currentFloor,
     input [1:0]      currentDirection,
@@ -130,7 +130,10 @@ module Director
                             || currentFloorButton == UPDOWN);
            DOWN   : isIn = (currentFloorButton == DOWN
                             || currentFloorButton == UPDOWN);
-           UPDOWN : $display("ERROR in Door!");
+           UPDOWN : begin
+              isIn = 1'b0;
+              $display("ERROR in Door!");
+           end
          endcase // case (currentDirection)
       end
    endfunction // isIn

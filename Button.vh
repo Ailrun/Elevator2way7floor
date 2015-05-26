@@ -3,6 +3,7 @@
 module Button
   ( //last
     input             clk,
+    input             enable,
     input             reset,
     input [2:0]       currentFloor,
     input [1:0]       currentDirection,
@@ -46,10 +47,10 @@ module Button
                end // if (doorState == OPEN)
              else if (move == HOLD)
                begin
-                  for (i = 1; i < 10; i = i + 1)
+                  for (ind2 = 1; ind2 < 10; ind2 = ind2 + 1)
                     begin
-                       nextInternalButton[i] <= (i == currentFloor)?
-                           OFF : internalButton[i];
+                       nextInternalButton[ind2] <= (ind2 == currentFloor)?
+                           OFF : internalButton[ind2];
                     end
                end
           end // else: !if(reset == ON)

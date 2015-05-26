@@ -50,7 +50,7 @@ module Door#(parameter CLK_PER_OPEN=500000000)
                      || internalButton[currentFloor] == ON))
                begin
                   doorState <= OPEN;
-                  counter <= CLK_PER_OPEN;
+9                  counter <= CLK_PER_OPEN;
                end
              else if (counter == INIT)
                begin
@@ -79,7 +79,10 @@ module Door#(parameter CLK_PER_OPEN=500000000)
                           || currentFloorButton == UPDOWN);
            DOWN   : isIn = (currentFloorButton == DOWN
                             || currentFloorButton == UPDOWN);
-           UPDOWN : $display("ERROR in Door!");
+           UPDOWN : begin
+              isIn = 1'b0;
+              $display("ERROR in Door!");
+           end
          endcase // case (currentDirection)
       end
    endfunction // isIn
