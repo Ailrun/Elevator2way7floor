@@ -27,17 +27,16 @@ module ElevatorController#(parameter CLK_PER_OPEN = 100000000, CLK_PER_MOVE = 20
      OPEN = 1'b1, CLOSE = 1'b0,
      INIT = 2'b00, COUNT_MAX = 2'b11;
 
-   reg [13:0]     floorButton;
+   reg [13:0]     unusedFloorButton;
    reg [13:0]     floorButton1;
    reg [13:0]     floorButton2;
    reg [9:1]      internalButton1;
    reg [9:1]      internalButton2;
 
+   wire [13:0]    nextUnusedFloorButton = (unusedFloorButton |
+                                           {0, realFloorButton, 0});
    wire [13:0]     nextFloorButton1;
    wire [13:0]     nextFloorButton2;
-   wire [13:0]     nextFloorButton = (nextFloorButton1 |
-                                      nextFloorButton2 |
-                                      {0, realFloorButton, 0});
    wire [9:1]      nextInternalButton1;
    wire [9:1]      nextInternalButton2;
 
@@ -58,7 +57,7 @@ module ElevatorController#(parameter CLK_PER_OPEN = 100000000, CLK_PER_MOVE = 20
      begin
         if (reset == 1)
           begin
-             floorButton <= 14'0;
+             unusedFloorButton <= 14'0;
              floorButton1 <= 14'b0;
              floorButton2 <= 14'b0;
              internalButton1 <= 9'b0;
@@ -67,7 +66,6 @@ module ElevatorController#(parameter CLK_PER_OPEN = 100000000, CLK_PER_MOVE = 20
           end
         else if (counter == INIT)
           begin
-             unusedFloorButton <= unusedFloorButton | {0, realFloorButton, 0};
              internalButton1 <= nextInternalButton1 | realInternalButton1;
              internalButton2 <= nextInternalButton2 | realInternalButton2;
              for (i = 1; i < 8; i = i + 1)

@@ -27,31 +27,29 @@ module Elevator#(parameter CLK_PER_OPEN = 500000000, CLK_PER_MOVE = 1000000000, 
 
    reg [2:0]     currentFloor;
    reg [1:0]     currentDirection;
-   reg           doorStateSave;
-   reg           moveSave;
    reg [1:0]     sequenceChecker;
 
-   Director#()
-   director((clk && (sequenceChecker == 0)), reset,
+   Director
+   director(clk, (sequenceChecker == 0), reset,
             currentFloor, currentDirection, floorButton, internalButton,
             doorState, move,
             nextDirection);
 
    Door#(CLK_PER_OPEN)
-   door((clk && (sequenceChecker == 1)), (reset || move),
+   door(clk, (sequenceChecker == 1), (reset || move),
         currentFloor, currentDirection,
         getCurrent(floorButton, currentFloor), internalButton,
         doorState);
 
    Lift#(CLK_PER_MOVE, CLK_PER_HOLD)
-   lift((clk && (sequenceChecker == 2)), reset,
+   lift(clk, (sequenceChecker == 2), reset,
         doorState, currentFloor, currentDirection,
         nextFloor, move);
 
-   Button#()
-   button((clk && (sequenceChecker == 3)), reset,
+   Button
+   button(clk, (sequenceChecker == 3), reset,
           currentFloor, currentDirection,
-          getCurrent(floorButton, currentFloor), internalButton, doorState, move,
+          floorButton, internalButton, doorState, move,
           nextFloorButton, nextInternalButton);
 
    always @(posedge clk)
@@ -63,7 +61,11 @@ module Elevator#(parameter CLK_PER_OPEN = 500000000, CLK_PER_MOVE = 1000000000, 
              sequenceChecker <= DIREC_STAGE;
           end
         else
-          sequenceChecker <= sequenceChecker + 1;
+          begin
+             currentFloor <= nextFloor;
+             currentDirection <= nextDirection;
+             sequenceChecker <= sequenceChecker + 1;
+          end
      end // always @ (posedge clk)
 
    function [1:0] getCurrent;

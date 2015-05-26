@@ -3,6 +3,7 @@
 module Door#(parameter CLK_PER_OPEN=500000000)
    ( //second
      input       clk,
+     input       enable,
      input       reset,
      input [2:0] currentFloor,
      input [1:0] currentDirection,
@@ -42,7 +43,7 @@ module Door#(parameter CLK_PER_OPEN=500000000)
              doorState <= CLOSE;
              counter  <= INIT;
           end
-        else
+        else if (enable == ON)
           begin
              if (currentDirection != STOP
                  && (isIn(currentDirection, currentFloorButton)

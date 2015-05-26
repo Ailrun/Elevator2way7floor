@@ -3,6 +3,7 @@
 module Lift#(parameter CLK_PER_MOVE = 1000000000, CLK_PER_HOLD = 10000000)
    ( //third
      input            clk,
+     input            enable
      input            reset,
      input            doorState,
      input [2:0]      currentFloor,
@@ -31,7 +32,7 @@ module Lift#(parameter CLK_PER_MOVE = 1000000000, CLK_PER_HOLD = 10000000)
              move <= OFF;
              counter <= INIT;
           end
-        else
+        else if (enable == ON)
           begin
              if (counter == INIT)
                begin

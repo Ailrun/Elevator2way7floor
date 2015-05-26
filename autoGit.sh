@@ -51,4 +51,4 @@ getfunc(){
     esac
 }
 
-getfunc "$#" $1 $2
+getfunc "$#" "$1" "$2"

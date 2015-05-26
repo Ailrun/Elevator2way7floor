@@ -6,7 +6,7 @@ module Button
     input             reset,
     input [2:0]       currentFloor,
     input [1:0]       currentDirection,
-    input [1:0]       currentFloorButton,
+    input [13:0]      currentFloorButton,
     input [9:1]       internalButton,
     input             doorState,
     input             move,
@@ -19,7 +19,7 @@ module Button
      ON = 1'b1, OFF = 1'b0,
      MOVE = 1'b1, HOLD = 1'b0;
 
-   integer       i;
+   integer       ind0, ind1, ind2;
 
    always @(posedge clk)
      begin
@@ -28,20 +28,20 @@ module Button
              nextFloorButton <= NO_FB;
              nextInternalButton <= NO_B;
           end
-        else
+        else if (enable == ON)
           begin
              if (doorState == OPEN)
                begin
-                  for (i = 0; i < 14; i = i + 1)
+                  for (ind0 = 0; ind0 < 14; ind0 = ind0 + 1)
                     begin
-                       nextFloorButton[i] <= (i/2 == currentFloor-1)?
-                           currentFloorButton[i] & ~currentDirection[i-i/2*2]:
-                           currentFloorButton[i];
+                       nextFloorButton[ind0] <= (ind0/2 == currentFloor-1)?
+                           currentFloorButton[ind0] & ~currentDirection[ind0-ind0/2*2]:
+                           currentFloorButton[ind0];
                     end
-                  for (i = 1; i < 10; i = i + 1)
+                  for (ind1 = 1; ind1 < 10; ind1 = ind1 + 1)
                     begin
-                       nextInternalButton[i] <= (i == currentFloor)?
-                           OFF : internalButton[i];
+                       nextInternalButton[ind1] <= (ind1 == currentFloor)?
+                           OFF : internalButton[ind1];
                     end
                end // if (doorState == OPEN)
              else if (move == HOLD)

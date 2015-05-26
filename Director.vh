@@ -2,14 +2,15 @@
 
 module Director
   ( //first
-    input        clk,
-    input        reset,
-    input [2:0]  currentFloor,
-    input [1:0]  currentDirection,
-    input [13:0] floorButton,
-    input [9:1]  internalButton,
-    input        doorState,
-    input        move,
+    input            clk,
+    input            enable
+    input            reset,
+    input [2:0]      currentFloor,
+    input [1:0]      currentDirection,
+    input [13:0]     floorButton,
+    input [9:1]      internalButton,
+    input            doorState,
+    input            move,
     output reg [1:0] nextDirection
     );
 
@@ -27,41 +28,44 @@ module Director
           begin
              nextDirection <= STOP;
           end
-        else if (move == HOLD)
+        else if (enable == ON)
           begin
-             if (doorState == CLOSE)
-               case (currentDirection)
-                 STOP :
-                   begin
-                      if (anyUpper == ON)
-                        nextDirection <= UP;
-                      else if (anyLower == ON)
-                        nextDirection <= DOWN;
-                   end
-                 UP :
-                   begin
-                      if (anyUpper == OFF)
+             if (move == HOLD)
+               begin
+                  if (doorState == CLOSE)
+                    case (currentDirection)
+                      STOP :
                         begin
-                           if (anyLower == ON)
+                           if (anyUpper == ON)
+                             nextDirection <= UP;
+                           else if (anyLower == ON)
                              nextDirection <= DOWN;
-                           else
-                             nextDirection <= STOP;
                         end
-                   end
-                 DOWN :
-                   begin
-                      if (anyLower == OFF)
+                      UP :
                         begin
+                           if (anyUpper == OFF)
+                             begin
+                                if (anyLower == ON)
+                                  nextDirection <= DOWN;
+                                else
+                                  nextDirection <= STOP;
+                             end
+                        end
+                      DOWN :
+                        begin
+                           if (anyLower == OFF)
+                             begin
                            if (anyUpper == ON)
                              nextDirection <= UP;
                            else
                              nextDirection <= STOP;
+                             end
                         end
-                   end
-                 UPDOWN :
-                   $display("ERROR in Director\n");
-               endcase // case (currentDirection)
-          end // if (move == HOLD)
+                      UPDOWN :
+                        $display("ERROR in Director\n");
+                    endcase // case (currentDirection)
+               end // if (move == HOLD)
+          end // if (enable == ON)
      end // always @ (posedge clk)
 
    function upper;
