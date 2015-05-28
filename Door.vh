@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module Door#(parameter CLK_PER_OPEN=500000000)
+module Door#(parameter CLK_PER_OPEN=5)
    ( //second
      input       clk,
      input       enable,
@@ -13,7 +13,7 @@ module Door#(parameter CLK_PER_OPEN=500000000)
      );
 
    /*reset signal also act a role of moving detector
-     (When Ele is moving, reset of door is on)*/
+    (When Ele is moving, reset of door is on)*/
 
 
 
@@ -23,20 +23,20 @@ module Door#(parameter CLK_PER_OPEN=500000000)
      INIT = 32'b0,
      STOP = 2'b00, UP = 2'b10, DOWN = 2'b01, UPDOWN = 2'b11;
 
-   reg [31:0]   counter;
+   reg [31:0]    counter;
 
    /*
     close condition ::
-   1. close button is on.
-   2. counter goes INIT when door is opened.
+    1. close button is on.
+    2. counter goes INIT when door is opened.
 
     open condition  ::
-   1. open button is on when Ele is stoped or door is opened.
-   2. currentFloorButton is same with currentDirection, except 2'b00
-   3. internalButton is set on this floor when Ele is not stoped.
+    1. open button is on when Ele is stoped or door is opened.
+    2. currentFloorButton is same with currentDirection, except 2'b00
+    3. internalButton is set on this floor when Ele is not stoped.
     */
 
-   always @(posedge clk)
+   always @(posedge clk or posedge reset)
      begin
         if (reset == ON)
           begin
@@ -45,12 +45,14 @@ module Door#(parameter CLK_PER_OPEN=500000000)
           end
         else if (enable == ON)
           begin
-             if (currentDirection != STOP
-                 && (isIn(currentDirection, currentFloorButton)
-                     || internalButton[currentFloor] == ON))
+             if ((currentDirection != STOP &&
+                  (isIn(currentDirection, currentFloorButton) ||
+                   internalButton[currentFloor] == ON)) ||
+                 (currentDirection == STOP &&
+                  !isIn(STOP, currentFloorButton)))
                begin
                   doorState <= OPEN;
-9                  counter <= CLK_PER_OPEN;
+                  counter <= CLK_PER_OPEN;
                end
              else if (counter == INIT)
                begin
@@ -76,13 +78,14 @@ module Door#(parameter CLK_PER_OPEN=500000000)
          case (currentDirection)
            STOP   : isIn = (currentFloorButton == STOP);
            UP     : isIn = (currentFloorButton == UP
-                          || currentFloorButton == UPDOWN);
+                            || currentFloorButton == UPDOWN);
            DOWN   : isIn = (currentFloorButton == DOWN
                             || currentFloorButton == UPDOWN);
-           UPDOWN : begin
-              isIn = 1'b0;
-              $display("ERROR in Door!");
-           end
+           UPDOWN :
+             begin
+                isIn = 0;
+                $display("ERROR in Door!");
+             end
          endcase // case (currentDirection)
       end
    endfunction // isIn

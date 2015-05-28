@@ -2,68 +2,63 @@
 
 `include "Director.vh"
 `include "Door.vh"
-`include "Lift.vh"
 `include "Button.vh"
+`include "Lift.vh"
 
-module Elevator#(parameter CLK_PER_OPEN = 500000000, CLK_PER_MOVE = 1000000000, CLK_PER_HOLD = 10000000)
+module Elevator#(parameter CLK_PER_OPEN = 5, CLK_PER_MOVE = 10, CLK_PER_HOLD = 10)
    (
-    input         clk,
-    input         reset,
-    input [13:0]  floorButton,
-    input [9:1]   internalButton,
+    input wire         clk,
+    input wire         reset,
+    input wire [13:0]  floorButton,
+    input wire [9:1]   internalButton,
     output [2:0]  nextFloor,
     output [1:0]  nextDirection,
     output [13:0] nextFloorButton,
     output [9:1]  nextInternalButton,
     output        doorState,
-    output        move
+    output        move,
+         output [1:0]  sequenceChecker
     );
 
    localparam ON = 1'b1, OFF = 1'b0,
      STOP = 2'b00, UP = 2'b10, DOWN = 2'b01, UPDOWN = 2'b11,
      OPEN = 1'b1, CLOSE = 1'b0,
      MOVE = 1'b1, HOLD = 1'b0,
-     DIREC_STAGE = 2'b00, DOOR_STAGE = 2'b01, LIFT_STAGE = 2'b10, BUTTON_STAGE = 2'b11;
+     DIREC_STAGE = 2'b00, DOOR_STAGE = 2'b01, BUTTON_STAGE = 2'b10, LIFT_STAGE = 2'b11;
 
-   reg [2:0]     currentFloor;
-   reg [1:0]     currentDirection;
    reg [1:0]     sequenceChecker;
 
    Director
-   director(clk, (sequenceChecker == 0), reset,
-            currentFloor, currentDirection, floorButton, internalButton[7:1],
+   director(clk, (sequenceChecker == DIREC_STAGE), reset,
+            nextFloor, nextDirection, floorButton, internalButton[7:1],
             doorState, move,
             nextDirection);
 
    Door#(CLK_PER_OPEN)
-   door(clk, (sequenceChecker == 1), (reset || move),
-        currentFloor, currentDirection,
-        getCurrent(floorButton, currentFloor), internalButton,
+   door(clk, (sequenceChecker == DOOR_STAGE), (reset || move),
+        nextFloor, nextDirection,
+        getCurrent(floorButton, nextFloor), internalButton,
         doorState);
 
-   Lift#(CLK_PER_MOVE, CLK_PER_HOLD)
-   lift(clk, (sequenceChecker == 2), reset,
-        doorState, currentFloor, currentDirection,
-        nextFloor, move);
-
    Button
-   button(clk, (sequenceChecker == 3), reset,
-          currentFloor, currentDirection,
+   button(clk, (sequenceChecker == BUTTON_STAGE), reset,
+          nextFloor, nextDirection,
           floorButton, internalButton, doorState, move,
           nextFloorButton, nextInternalButton);
 
-   always @(posedge clk)
+   Lift#(CLK_PER_MOVE, CLK_PER_HOLD)
+   lift(clk, (sequenceChecker == LIFT_STAGE), reset,
+        doorState, nextFloor, nextDirection,
+        nextFloor, move);
+
+   always @(posedge clk or posedge reset)
      begin
         if (reset == ON)
           begin
-             currentFloor <= 1;
-             currentDirection <= STOP;
              sequenceChecker <= DIREC_STAGE;
           end
         else
           begin
-             currentFloor <= nextFloor;
-             currentDirection <= nextDirection;
              sequenceChecker <= sequenceChecker + 1;
           end
      end // always @ (posedge clk)

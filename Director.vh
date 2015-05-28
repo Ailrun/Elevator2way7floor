@@ -19,10 +19,10 @@ module Director
      OPEN = 1'b1, CLOSE = 1'b0,
      STOP = 2'b00, UP = 2'b10, DOWN = 2'b01, UPDOWN = 2'b11;
 
-   wire         anyUpper = upper(currentFloor, floorButton, internalButton);
-   wire         anyLower = lower(currentFloor, floorButton, internalButton);
+   wire              anyUpper = upper(currentFloor, floorButton, internalButton);
+   wire              anyLower = lower(currentFloor, floorButton, internalButton);
 
-   always @(posedge clk)
+   always @(posedge clk or posedge reset)
      begin
         if (reset == ON)
           begin
@@ -55,10 +55,10 @@ module Director
                         begin
                            if (anyLower == OFF)
                              begin
-                           if (anyUpper == ON)
-                             nextDirection <= UP;
-                           else
-                             nextDirection <= STOP;
+                                if (anyUpper == ON)
+                                  nextDirection <= UP;
+                                else
+                                  nextDirection <= STOP;
                              end
                         end
                       UPDOWN :
@@ -66,12 +66,16 @@ module Director
                     endcase // case (currentDirection)
                end // if (move == HOLD)
           end // if (enable == ON)
+        else
+          begin
+             nextDirection <= currentDirection;
+          end // else: !if(enable == ON)
      end // always @ (posedge clk)
 
    function upper;
       input [2:0]  currentFloor;
       input [13:0] floorButton;
-      input [7:1]  internalButton;
+      input [9:1]  internalButton;
       begin
          upper = (currentFloor < 2 &&
                   (internalButton[2] == ON ||
@@ -97,7 +101,7 @@ module Director
    function lower;
       input [2:0]  currentFloor;
       input [13:0] floorButton;
-      input [7:1]  internalButton;
+      input [9:1]  internalButton;
       begin
          lower = (currentFloor > 1 &&
                   (internalButton[1] == ON ||
@@ -130,10 +134,7 @@ module Director
                             || currentFloorButton == UPDOWN);
            DOWN   : isIn = (currentFloorButton == DOWN
                             || currentFloorButton == UPDOWN);
-           UPDOWN : begin
-              isIn = 1'b0;
-              $display("ERROR in Door!");
-           end
+           UPDOWN : $display("ERROR in Door!");
          endcase // case (currentDirection)
       end
    endfunction // isIn
