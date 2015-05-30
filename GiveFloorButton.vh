@@ -108,8 +108,12 @@ module SubGive
 
    wire [1:0] loseButton1 = STOP;
    wire [1:0] loseButton2 = STOP;
-   wire [1:0] getButton1 = STOP;
-   wire [1:0] getButton2 = unusedFloorButtonIn;
+   wire [1:0] getButton1 = ((currentFloor == 3)?
+                            (UP & unusedFloorButtonIn) :
+                            STOP);
+   wire [1:0] getButton2 = ((currentFloor == 3)?
+                            (DOWN & unusedFloorButtonIn) :
+                            unusedFloorButtonIn);
 
    assign nextFloorButton1 = reset?0:
                              (currentFloorButton1 | getButton1) & ~loseButton1;
