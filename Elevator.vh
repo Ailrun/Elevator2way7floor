@@ -7,17 +7,15 @@
 
 module Elevator#(parameter CLK_PER_OPEN = 5, CLK_PER_MOVE = 10, CLK_PER_HOLD = 10)
    (
-    input wire         clk,
-    input wire         reset,
-    input wire [13:0]  floorButton,
-    input wire [9:1]   internalButton,
+    input         clk,
+    input         reset,
+    input [13:0]  floorButton,
+    input [9:1]   internalButton,
     output [2:0]  nextFloor,
     output [1:0]  nextDirection,
     output [13:0] nextFloorButton,
     output [9:1]  nextInternalButton,
-    output        doorState,
-    output        move,
-         output [1:0]  sequenceChecker
+    output        doorState
     );
 
    localparam ON = 1'b1, OFF = 1'b0,
@@ -26,13 +24,13 @@ module Elevator#(parameter CLK_PER_OPEN = 5, CLK_PER_MOVE = 10, CLK_PER_HOLD = 1
      MOVE = 1'b1, HOLD = 1'b0,
      DIREC_STAGE = 2'b00, DOOR_STAGE = 2'b01, BUTTON_STAGE = 2'b10, LIFT_STAGE = 2'b11;
 
-   reg [1:0]     sequenceChecker;
+   reg [1:0]      sequenceChecker;
 
    Director
-   director(clk, (sequenceChecker == DIREC_STAGE), reset,
-            nextFloor, nextDirection, floorButton, internalButton[7:1],
-            doorState, move,
-            nextDirection);
+     director(clk, (sequenceChecker == DIREC_STAGE), reset,
+              nextFloor, nextDirection, floorButton, internalButton[7:1],
+              doorState, move,
+              nextDirection);
 
    Door#(CLK_PER_OPEN)
    door(clk, (sequenceChecker == DOOR_STAGE), (reset || move),
@@ -41,10 +39,10 @@ module Elevator#(parameter CLK_PER_OPEN = 5, CLK_PER_MOVE = 10, CLK_PER_HOLD = 1
         doorState);
 
    Button
-   button(clk, (sequenceChecker == BUTTON_STAGE), reset,
-          nextFloor, nextDirection,
-          floorButton, internalButton, doorState, move,
-          nextFloorButton, nextInternalButton);
+     button(clk, (sequenceChecker == BUTTON_STAGE), reset,
+            nextFloor, nextDirection,
+            floorButton, internalButton, doorState, move,
+            nextFloorButton, nextInternalButton);
 
    Lift#(CLK_PER_MOVE, CLK_PER_HOLD)
    lift(clk, (sequenceChecker == LIFT_STAGE), reset,
