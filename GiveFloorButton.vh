@@ -106,14 +106,100 @@ module SubGive
               currentFloorButton2 |
               unusedFloorButtonIn;
 
-   wire [1:0] loseButton1 = STOP;
-   wire [1:0] loseButton2 = STOP;
-   wire [1:0] getButton1 = ((currentFloor == 3)?
-                            (UP & unusedFloorButtonIn) :
-                            STOP);
-   wire [1:0] getButton2 = ((currentFloor == 3)?
-                            (DOWN & unusedFloorButtonIn) :
-                            unusedFloorButtonIn);
+   wire [1:0] loseButton1;
+   wire [1:0] loseButton2;
+   assign loseButton1[0] = wholeButton[0]?
+                           ((currentFloor2 == buttonFloor &&
+                             direction2[1] == OFF)?
+                            (sameDis?
+                             ((currentFloor1 == buttonFloor &&
+                               direction1[1] == OFF)?
+                              OFF:
+                              ON):
+                             ON):
+                            OFF):
+                           OFF;
+   assign loseButton1[1] = wholeButton[1]?
+                           ((currentFloor2 == buttonFloor &&
+                             direction2[0] == OFF)?
+                            (~sameDis?
+                             ((currentFloor1 == buttonFloor &&
+                               direction1[0] == OFF)?
+                              OFF:
+                              ON):
+                             ON):
+                            OFF):
+                           OFF;
+   assign loseButton2[0] = wholeButton[0]?
+                           ((currentFloor1 == buttonFloor &&
+                             direction1[1] == OFF)?
+                            (~sameDis?
+                             ((currentFloor2 == buttonFloor &&
+                               direction2[1] == OFF)?
+                              OFF:
+                              ON):
+                             ON):
+                            OFF):
+                           OFF;
+   assign loseButton2[1] = wholeButton[1]?
+                           ((currentFloor1 == buttonFloor &&
+                             direction1[0] == OFF)?
+                            (sameDis?
+                             ((currentFloor2 == buttonFloor &&
+                               direction2[0] == OFF)?
+                              OFF:
+                              ON):
+                             ON):
+                            OFF):
+                           OFF;
+
+
+   wire [1:0] getButton1;
+   wire [1:0] getButton2;
+   assign getButton1[0] = (direction1 == STOP)?
+                          ((direction2[1] == OFF)?
+                           ((sameDis?
+                             isCloser(buttonFloor,
+                                      currentFloor1, currentFloor2):
+                             ~isCloser(buttonFloor,
+                                      currentFloor2, currentFloor1))?
+                            ON:
+                            OFF):
+                           ON):
+                          OFF;
+   assign getButton1[1] = (direction1 == STOP)?
+                          ((direction2[0] == OFF)?
+                           ((~sameDis?
+                             isCloser(buttonFloor,
+                                      currentFloor1, currentFloor2):
+                             ~isCloser(buttonFloor,
+                                       currentFloor2, currentFloor1))?
+                            ON:
+                            OFF):
+                           ON):
+                          OFF;
+   assign getButton2[0] = (direction2 == STOP)?
+                          ((direction1[1] == OFF)?
+                           ((~sameDis?
+                             isCloser(buttonFloor,
+                                      currentFloor2, currentFloor1):
+                             ~isCloser(buttonFloor,
+                                       currentFloor1, currentFloor2))?
+                            ON:
+                            OFF):
+                           ON):
+                          OFF;
+   assign getButton2[1] = (direction2 == STOP)?
+                          ((direction1[0] == OFF)?
+                           ((sameDis?
+                             isCloser(buttonFloor,
+                                      currentFloor2, currentFloor1):
+                             ~isCloser(buttonFloor,
+                                       currentFloor1, currentFloor2))?
+                            ON:
+                            OFF):
+                           ON):
+                          OFF;
 
    assign nextFloorButton1 = reset?0:
                              (currentFloorButton1 | getButton1) & ~loseButton1;
@@ -123,5 +209,23 @@ module SubGive
    assign unusedFloorButtonOut = reset?0:
                                  (unusedFloorButtonIn | newFloorButton) &
                                  ~(nextFloorButton1 | nextFloorButton2);
+
+   function isCloser;
+      input [2:0] buttonFloor;
+      input [2:0] closeFloor;
+      input [2:0] farFloor;
+      begin
+         case ({buttonFloor > closeFloor, buttonFloor > farFloor})
+           2'b00 :
+             isCloser = (closeFloor - buttonFloor) < (farFloor - buttonFloor);
+           2'b01 :
+             isCloser = (closeFloor - buttonFloor) < (buttonFloor - farFloor);
+           2'b10 :
+             isCloser = (buttonFloor - closeFloor) < (farFloor - buttonFloor);
+           2'b11 :
+             isCloser = (buttonFloor - closeFloor) < (buttonFloor - farFloor);
+         endcase // case ({buttonFloor > closeFloor, buttonFloor > farFloor})
+      end
+   endfunction // isCloser
 
 endmodule // SubGive
