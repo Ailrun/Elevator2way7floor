@@ -51,7 +51,9 @@ module Button
                          begin
                             nextFloorButton[ind0] <= (ind0/2 == currentFloor-1)?
                                    currentFloorButton[ind0] &
-                                   currentFloorButton[2*ind0-ind0/2*2]:
+                                   ((ind0-ind0/2*2)?
+                                    currentFloorButton[ind0-1]:
+                                    OFF):
                                    currentFloorButton[ind0];
                          end
                     end // else: !if(currentDirection & UPDOWN)
