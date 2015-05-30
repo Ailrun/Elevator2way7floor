@@ -210,9 +210,11 @@ module SubGive
                           OFF;
 
    assign nextFloorButton1 = reset?0:
-                             (currentFloorButton1 | getButton1) & ~loseButton1;
+                             ((currentFloorButton1 | getButton1 | loseButton2) &
+                              ~loseButton1);
    assign nextFloorButton2 = reset?0:
-                             (currentFloorButton2 | getButton2) & ~loseButton2;
+                             ((currentFloorButton2 | getButton2 | loseButton1) &
+                              ~loseButton2);
 
    assign unusedFloorButtonOut = reset?0:
                                  (unusedFloorButtonIn | newFloorButton) &
