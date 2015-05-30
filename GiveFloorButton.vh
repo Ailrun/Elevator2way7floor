@@ -163,9 +163,9 @@ module SubGive
                                       currentFloor1, currentFloor2):
                              ~isCloser(buttonFloor,
                                       currentFloor2, currentFloor1))?
-                            ON:
+                            unusedFloorButtonIn[0]:
                             OFF):
-                           ON):
+                           unusedFloorButtonIn[0]):
                           OFF;
    assign getButton1[1] = (direction1 == STOP)?
                           ((direction2[0] == OFF)?
@@ -174,9 +174,9 @@ module SubGive
                                       currentFloor1, currentFloor2):
                              ~isCloser(buttonFloor,
                                        currentFloor2, currentFloor1))?
-                            ON:
+                            unusedFloorButtonIn[1]:
                             OFF):
-                           ON):
+                           unusedFloorButtonIn[1]):
                           OFF;
    assign getButton2[0] = (direction2 == STOP)?
                           ((direction1[1] == OFF)?
@@ -185,9 +185,9 @@ module SubGive
                                       currentFloor2, currentFloor1):
                              ~isCloser(buttonFloor,
                                        currentFloor1, currentFloor2))?
-                            ON:
+                            unusedFloorButtonIn[0]:
                             OFF):
-                           ON):
+                           unusedFloorButtonIn[0]):
                           OFF;
    assign getButton2[1] = (direction2 == STOP)?
                           ((direction1[0] == OFF)?
@@ -196,9 +196,9 @@ module SubGive
                                       currentFloor2, currentFloor1):
                              ~isCloser(buttonFloor,
                                        currentFloor1, currentFloor2))?
-                            ON:
+                            unusedFloorButtonIn[1]:
                             OFF):
-                           ON):
+                           unusedFloorButtonIn[1]):
                           OFF;
 
    assign nextFloorButton1 = reset?0:
