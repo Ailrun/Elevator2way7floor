@@ -42,7 +42,7 @@ module ElevatorController#(parameter CLK_PER_OPEN = 5, CLK_PER_MOVE = 10, CLK_PE
    assign currentInternalButton2 = nextInternalButton2 | newInternalButton2;
 
    GiveFloorButton
-     gFB(clk, reset, currentFloor1, currentFloor2, newFloorButton,
+     gFB(clk, reset, currentFloor1, currentFloor2, newExtendedFloorButton,
          nextFloorButton1, nextFloorButton2, unusedFloorButtonIn,
          currentDirection1, currentDirection2,
          currentFloorButton1, currentFloorButton2, unusedFloorButtonOut);

@@ -135,7 +135,7 @@ module SubGive
 
    assign unusedFloorButtonOut = reset?0:
                                  (unusedFloorButtonIn | newFloorButton) &
-                                 ~(getButton1 | getButton2);
+                                 ~(nextFloorButton1 | nextFloorButton2);
 
    function [1:0] loseButton;
       input   eleNum;
