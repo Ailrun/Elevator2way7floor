@@ -45,9 +45,9 @@ module Door#(parameter CLK_PER_OPEN=5)
           end
         else if (enable == ON)
           begin
-             if ((currentDirection != STOP &&
-                  (isIn(currentDirection, currentFloorButton) ||
-                   internalButton[currentFloor] == ON)) ||
+             if (internalButton[currentFloor] == ON ||
+                 (currentDirection != STOP &&
+                  isIn(currentDirection, currentFloorButton)) ||
                  (currentDirection == STOP &&
                   !isIn(STOP, currentFloorButton)))
                begin
