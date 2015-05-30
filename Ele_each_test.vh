@@ -16,8 +16,6 @@ module Ele_each_test;
    wire [13:0] nextFloorButton;
    wire [9:1]  nextInternalButton;
    wire        doorState;
-   wire        move;
-   wire [1:0]  sC;
 
    // Instantiate the Unit Under Test (UUT)
    Elevator#(10,10,10) uut (
@@ -30,8 +28,6 @@ module Ele_each_test;
                             .nextFloorButton(nextFloorButton),
                             .nextInternalButton(nextInternalButton),
                             .doorState(doorState),
-                            .move(move),
-                            .sequenceChecker(sC)
                             );
 
    initial begin
