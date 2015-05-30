@@ -19,9 +19,6 @@ module EleCont_Test;
    wire [9:1]  currentInternalButton2;
    wire        doorState1;
    wire        doorState2;
-   wire [13:0] cFB1, cFB2, uFBI, uFBO;
-   wire [1:0]  sC1, sC2;
-   wire        move1, move2;
 
    // Instantiate the Unit Under Test (UUT)
    ElevatorController#(40,40,0) uut
@@ -40,14 +37,6 @@ module EleCont_Test;
       .currentInternalButton2(currentInternalButton2),
       .doorState1(doorState1),
       .doorState2(doorState2),
-      .currentFloorButton1(cFB1),
-      .currentFloorButton2(cFB2),
-      .unusedFloorButtonIn(uFBI),
-      .unusedFloorButtonOut(uFBO),
-      .move1(move1),
-      .move2(move2),
-      .sC1(sC1),
-      .sC2(sC2)
       );
 
 
