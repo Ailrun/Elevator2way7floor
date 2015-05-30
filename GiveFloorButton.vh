@@ -65,12 +65,12 @@ module GiveFloorButton
                 nextFloorButton1[11:10], nextFloorButton2[11:10],
                 unusedFloorButtonOut[11:10]);
    SubGive sub7(clk, reset, sameDis, 3'b111, currentFloor1, currentFloor2,
-                newFloorButton[12:11],
-                currentFloorButton1[12:11], currentFloorButton2[12:11],
-                unusedFloorButtonIn[12:11],
+                newFloorButton[13:12],
+                currentFloorButton1[13:12], currentFloorButton2[13:12],
+                unusedFloorButtonIn[13:12],
                 direction1, direction2,
-                nextFloorButton1[12:11], nextFloorButton2[12:11],
-                unusedFloorButtonOut[12:11]);
+                nextFloorButton1[13:12], nextFloorButton2[13:12],
+                unusedFloorButtonOut[13:12]);
 
    always @(posedge clk)
      begin
@@ -106,27 +106,10 @@ module SubGive
               currentFloorButton2 |
               unusedFloorButtonIn;
 
-   wire [1:0] Ele1WCanGet = canGet(buttonFloor, currentFloor1,
-                                    direction1, wholeButton);
-   wire [1:0] Ele2WCanGet = canGet(buttonFloor, currentFloor2,
-                                    direction2, wholeButton);
-
-   wire [1:0] loseButton1 = loseButton(0, sameDis, buttonFloor,
-                                       currentFloor1, currentFloor2,
-                                       Ele1WCanGet, Ele2WCanGet);
-   wire [1:0] loseButton2 = loseButton(1, sameDis, buttonFloor,
-                                       currentFloor2, currentFloor1,
-                                       Ele2WCanGet, Ele1WCanGet);
-   wire [1:0] getButton1 = (getButton(0, sameDis, buttonFloor,
-                                     currentFloor1, currentFloor2,
-                                     direction1, direction2,
-                                     unusedFloorButtonIn | newFloorButton) |
-                            loseButton2);
-   wire [1:0] getButton2 = (getButton(1, sameDis, buttonFloor,
-                                     currentFloor2, currentFloor1,
-                                     direction2, direction1,
-                                     unusedFloorButtonIn | newFloorButton) |
-                            loseButton1);
+   wire [1:0] loseButton1 = STOP;
+   wire [1:0] loseButton2 = STOP;
+   wire [1:0] getButton1 = STOP;
+   wire [1:0] getButton2 = unusedFloorButtonIn;
 
    assign nextFloorButton1 = reset?0:
                              (currentFloorButton1 | getButton1) & ~loseButton1;
@@ -136,79 +119,5 @@ module SubGive
    assign unusedFloorButtonOut = reset?0:
                                  (unusedFloorButtonIn | newFloorButton) &
                                  ~(nextFloorButton1 | nextFloorButton2);
-
-   function [1:0] loseButton;
-      input   eleNum;
-      input   sameDis;
-      input [2:0] buttonFloor;
-      input [2:0] targetFloor;
-      input [2:0] counterFloor;
-      input [1:0] targetCanGet;
-      input [1:0] counterCanGet;
-      begin
-         /*eleNum ^ sameDis == 1 : target has priority on button UP
-                                   (counter DOWN)
-          eleNum ^ sameDis == 0 : target has priority on button DOWN
-                                  (counter UP)
-          */
-         case ({buttonFloor == targetFloor,
-                buttonFloor == counterFloor})
-           2'b00, 2'b10 : loseButton = STOP;
-           2'b01 :
-             loseButton = (counterCanGet == UPDOWN)?
-                            (eleNum^sameDis?DOWN:UP):
-                          counterCanGet;
-           2'b11 :
-             loseButton = (counterCanGet == STOP)?
-                          STOP:
-                          ((counterCanGet == UPDOWN)?
-                           (eleNum^sameDis?DOWN:UP):
-                           ((counterCanGet | targetCanGet ==
-                             (eleNum^sameDis?UP:DOWN))?
-                            0:
-                            counterCanGet));
-         endcase // case ({buttonFloor == targetFloor,...
-      end
-   endfunction // loseButton
-
-   function [1:0] getButton;
-      input   eleNum;
-      input   sameDis;
-      input [2:0] buttonFloor;
-      input [2:0] targetFloor;
-      input [2:0] counterFloor;
-      input [1:0] targetDirection;
-      input [1:0] counterDirection;
-      input [1:0] unusedFloorButtonIn;
-      begin
-         /* sameDis == 1 : Ele2 has priority on same distance button.
-          sameDis == 0 : Ele1 has pirority on same distance button.
-          eleNum ^ sameDis == 1 : target has priority on button UP
-          (counter DOWN)
-          eleNum ^ sameDis == 0 : target has priority on button DOWN
-          (counter UP)
-          */
-
-         // Must Implement this section.
-         getButton = STOP;
-      end
-   endfunction // getButton
-
-   function canGet;
-      input [2:0] buttonFloor;
-      input [2:0] currentFloor;
-      input [1:0] currentDirection;
-      input [1:0] wholeButton;
-      begin
-         if (currentDirection == STOP)
-           canGet = wholeButton;
-         else if (currentFloor <= buttonFloor && currentDirection == UP)
-           canGet = wholeButton & UP;
-         else if (currentFloor >= buttonFloor && currentDirection == DOWN)
-           canGet = wholeButton & DOWN;
-         else
-           canGet = STOP;
-      end
-   endfunction
 
 endmodule // SubGive
