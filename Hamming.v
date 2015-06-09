@@ -58,7 +58,7 @@ module SerialHammingDecoder#(parameter N = 8)
 
    genvar                              ind0;
    generate
-      for (ind0 = 1; ind0 < N/4 + 1; ind0 = ind0 + 1)
+      for (ind0 = 1; ind0 < N/4 + (N%4 != 2'b00) + 1; ind0 = ind0 + 1)
         begin : gen0
            HammingDecoder ham(.received(hammedData[8*ind0:8*ind0-6]),
                               .data(extendedData[4*ind0:4*ind0-3]));

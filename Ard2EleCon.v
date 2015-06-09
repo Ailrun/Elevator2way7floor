@@ -18,7 +18,7 @@ module Ard2EleCon#(parameter CLKFRQ = 100000000, BAUDRATE = 9600)
 
    UARTReceiver#(CLKFRQ, BAUDRATE) uartR(.clk(clk), .reset(reset),
                                          .en(1'b1), .data(data),
-                                         .receiveAll(receiveAll));
+                                         .rx(rx), .receiveAll(receiveAll));
 
    reg [79:0]   reversedSerial;
    reg          en;
@@ -73,7 +73,7 @@ module Ard2EleCon#(parameter CLKFRQ = 100000000, BAUDRATE = 9600)
         end
    endgenerate
 
-   wire [39:0] serial;
+   wire [38:0] serial;
 
    SerialHammingDecoder#(39) serialHammingD(.hammedData(hammedSerial),
                                             .data(serial));
