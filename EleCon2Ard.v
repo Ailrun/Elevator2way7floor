@@ -41,6 +41,16 @@ module EleCon2Ard#(parameter CLKFRQ = 100000000, BAUDRATE = 9600)
    SerialHammingEncoder#(57) serialHammingE(.data(serial),
                                             .hammedData(hammedSerial));
 
+   wire [119:0] reversedSerial;
+
+   genvar       ind0;
+   generate
+      for (ind0 = 0; ind0 < 120; ind0 = ind0 + 1)
+        begin : gen0
+           assign reversedSerial[ind0] = hammedSerial[119-ind0];
+        end
+   endgenerate
+
    reg [119:8]  savedSerial;
    reg [3:0]    counter;
    reg [7:0]    data;
@@ -62,33 +72,36 @@ module EleCon2Ard#(parameter CLKFRQ = 100000000, BAUDRATE = 9600)
           end
         else
           begin
-             if (counter == 15)
+             if (ready)
                begin
-                  savedSerial <= hammedSerial[119:8];
-                  data <= hammedSerial[7:0];
-                  counter <= 7'b1;
-               end
-             else if (ready)
-               begin
-                  case (counter)
-                    4'b0001 : data <= savedSerial[15:8];
-                    4'b0010 : data <= savedSerial[23:16];
-                    4'b0011 : data <= savedSerial[31:24];
-                    4'b0100 : data <= savedSerial[39:32];
-                    4'b0101 : data <= savedSerial[47:40];
-                    4'b0110 : data <= savedSerial[55:48];
-                    4'b0111 : data <= savedSerial[63:56];
-                    4'b1000 : data <= savedSerial[71:64];
-                    4'b1001 : data <= savedSerial[79:72];
-                    4'b1010 : data <= savedSerial[87:80];
-                    4'b1011 : data <= savedSerial[95:88];
-                    4'b1100 : data <= savedSerial[103:96];
-                    4'b1101 : data <= savedSerial[111:104];
-                    4'b1110 : data <= savedSerial[119:112];
-                  endcase
-                  en <= 1'b1;
-                  counter <= counter + 1;
-               end
+                  if (counter == 15)
+                    begin
+                       savedSerial <= reversedSerial[119:8];
+                       data <= reversedSerial[7:0];
+                       counter <= 7'b1;
+                    end
+                  else
+                    begin
+                       case (counter)
+                         4'b0001 : data <= savedSerial[15:8];
+                         4'b0010 : data <= savedSerial[23:16];
+                         4'b0011 : data <= savedSerial[31:24];
+                         4'b0100 : data <= savedSerial[39:32];
+                         4'b0101 : data <= savedSerial[47:40];
+                         4'b0110 : data <= savedSerial[55:48];
+                         4'b0111 : data <= savedSerial[63:56];
+                         4'b1000 : data <= savedSerial[71:64];
+                         4'b1001 : data <= savedSerial[79:72];
+                         4'b1010 : data <= savedSerial[87:80];
+                         4'b1011 : data <= savedSerial[95:88];
+                         4'b1100 : data <= savedSerial[103:96];
+                         4'b1101 : data <= savedSerial[111:104];
+                         4'b1110 : data <= savedSerial[119:112];
+                       endcase
+                       en <= 1'b1;
+                       counter <= counter + 1;
+                    end // else: !if(counter == 15)
+               end // if (ready)
              else
                en <= 1'b0;
           end // else: !if(reset)
