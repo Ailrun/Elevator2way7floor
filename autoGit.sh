@@ -3,7 +3,7 @@
 pushall(){
     find . -regex "\./\([^\.]\).*[^~]$"| xargs git add
     git commit -m "$1"
-    git push origin GiveFloorButtonEdit
+    git push origin master
 }
 
 push(){
@@ -15,7 +15,7 @@ push(){
     fi
     git add fileList
     git commit -m "$1"
-    git pus origin master
+    git push origin master
 }
 
 pull(){

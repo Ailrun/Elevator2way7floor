@@ -96,7 +96,7 @@ module SerialHammingEncoder#(parameter N = 8)
 
    genvar                          ind1;
    generate
-      for (ind1 = 1; ind1 < N/4 + 1; ind1 = ind1 + 1)
+      for (ind1 = 1; ind1 < N/4 + (N%4 != 2'b00) + 1; ind1 = ind1 + 1)
         begin : gen1
            assign hammedData[8*ind1-7] = 1'b0;
            HammingEncoder ham(.data(extendedData[4*ind1:4*ind1-3]),
