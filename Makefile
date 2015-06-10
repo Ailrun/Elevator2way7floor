@@ -1,7 +1,7 @@
 VER = iverilog
 VERFLAGS = ""
-SRCS != find -name "*.vh" | xargs basename -a
-OBJS = $(SRCS:%.vh=%.o)
+SRCS != find -name "*.v" | xargs basename -a
+OBJS = $(SRCS:%.v=%.o)
 
 .PHONY : all clean
 
@@ -11,7 +11,5 @@ OBJS = $(SRCS:%.vh=%.o)
 all : OBJS
 
 clean :
-	echo $(SRCS)
-	echo $(OBJS)
 	rm -f $(OBJS)
 	rm -f *~
