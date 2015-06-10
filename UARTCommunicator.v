@@ -24,25 +24,25 @@ module UARTSender#(parameter CLKFRQ = 100000000, BAUDRATE = 9600)
           begin
              tx <= 1'b1;
              ready <= 1'b1;
-             tx_counter <= 16'b0;
+             tx_counter <= INIT;
              tx_index <= 4'b0;
              tx_on <= 1'b0;
              savedData <= 8'b1111_1111;
           end
         else
           begin
-             if (en && ready)
+             if (tx_counter == INIT)
                begin
-                  ready <= 1'b0;
-                  tx_on <= 1'b1;
-                  tx <= 1'b0;
-                  tx_counter <= CLK_PER_BAUD;
-                  tx_index <= 4'b0;
-                  savedData <= data;
-               end
-             else if (tx_on)
-               begin
-                  if (tx_counter == INIT)
+                  if (en && ready)
+                    begin
+                       ready <= 1'b0;
+                       tx_on <= 1'b1;
+                       tx <= 1'b0;
+                       tx_counter <= CLK_PER_BAUD;
+                       tx_index <= 4'b0;
+                       savedData <= data;
+                    end
+                  else if (tx_on)
                     begin
                        if (tx_index != 4'b1000)
                          begin
@@ -54,14 +54,19 @@ module UARTSender#(parameter CLKFRQ = 100000000, BAUDRATE = 9600)
                             tx <= 1'b1;
                             tx_on <= 1'b0;
                          end
-                    end // if (tx_counter == INIT)
+                       tx_counter <= CLK_PER_BAUD;
+                    end // if (tx_on)
                   else
                     begin
-                       tx_counter <= tx_counter - 1;
-                    end // else: !if(tx_counter == INIT)
-               end // if (tx_on)
+                       ready <= 1'b1;
+                    end // else: !if(tx_on)
+               end // if (tx_counter == INIT)
              else
-               ready <= 1'b1;
+               begin
+                  if (!tx_on)
+                    ready <= 1'b1;
+                  tx_counter <= tx_counter - 1;
+               end // else: !if(tx_counter == INIT)
           end // else: !if(reset)
      end // always @ (posedge clk)
 
@@ -72,7 +77,6 @@ module UARTReceiver#(parameter CLKFRQ = 100000000, BAUDRATE = 9600)
     input            clk,
     input            reset,
     input            rx,
-    input            en,
     output reg [7:0] data,
     output reg       receiveAll
     );
@@ -91,23 +95,23 @@ module UARTReceiver#(parameter CLKFRQ = 100000000, BAUDRATE = 9600)
           begin
              data <= 8'b0;
              receiveAll <= 1'b0;
-             rx_counter <= 16'b0;
-             rx_index <= 3'b0;
+             rx_counter <= INIT;
+             rx_index <= 4'b0;
              rx_on <= 1'b0;
              receiveData <= 8'b1111_1111;
           end
         else
           begin
-             if (rx == 1 && en)
+             if (rx_counter == INIT)
                begin
-                  rx_on <= 1'b1;
-                  rx_index <= 4'b0;
-                  rx_counter <= CLK_PER_BAUD;
-                  receiveAll <= 1'b0;
-               end
-             else if (rx_on)
-               begin
-                  if (rx_counter == INIT)
+                  if (!rx && !rx_on)
+                    begin
+                       rx_on <= 1'b1;
+                       rx_index <= 4'b0;
+                       rx_counter <= CLK_PER_BAUD;
+                       receiveAll <= 1'b0;
+                    end
+                  else if (rx_on)
                     begin
                        if (rx_index != 4'b1000)
                          begin
@@ -120,14 +124,18 @@ module UARTReceiver#(parameter CLKFRQ = 100000000, BAUDRATE = 9600)
                             receiveAll <= 1'b1;
                             rx_on <= 0;
                          end // else: !if(rx_index != 4'b1000)
-                    end // if (rx_counter == INIT)
+                       rx_counter <= CLK_PER_BAUD;
+                    end // if (rx_on)
                   else
-                    rx_counter <= rx_counter - 1;
-               end // if (rx_on)
+                    begin
+                       receiveAll <= 1'b0;
+                    end // else: !if(rx_on)
+               end // if (rx_counter == INIT)
              else
                begin
                   receiveAll <= 1'b0;
-               end // else: !if(rx_on)
+                  rx_counter <= rx_counter - 1;
+               end // else: !if(rx_counter == INIT)
           end // else: !if(reset)
      end // always @ (posedge clk)
 

@@ -17,8 +17,8 @@ module Ard2EleCon#(parameter CLKFRQ = 100000000, BAUDRATE = 9600)
    wire          receiveAll;
 
    UARTReceiver#(CLKFRQ, BAUDRATE) uartR(.clk(clk), .reset(reset),
-                                         .en(1'b1), .data(data),
-                                         .rx(rx), .receiveAll(receiveAll));
+                                         .data(data), .rx(rx),
+                                         .receiveAll(receiveAll));
 
    reg [79:0]   reversedSerial;
    reg          en;
