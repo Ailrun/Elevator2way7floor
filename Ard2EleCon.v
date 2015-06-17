@@ -4,6 +4,7 @@ module Ard2EleCon#(parameter CLKFRQ = 100000000, BAUDRATE = 9600)
   (
    input         clk,
    input         reset,
+   input         en,
    input         rx,
    output [11:0] newRealFloorButton,
    output [9:1]  newInternalButton1,

@@ -8,6 +8,7 @@ module ElevatorControlWCommunicator#(parameter CLKFRQ = 100000000,
    (
     input  clk,
     input  reset,
+    input  en,
     input  rx,
     output tx
     );
@@ -39,7 +40,7 @@ module ElevatorControlWCommunicator#(parameter CLKFRQ = 100000000,
               .doorState3(doorState3));
 
    Ard2EleCon#(CLKFRQ, BAUDRATE)
-   ard2EleCon(.clk(clk), .reset(reset), .rx(rx),
+   ard2EleCon(.clk(clk), .reset(reset), .en(en) .rx(rx),
               .newRealFloorButton(newRealFloorButton),
               .newInternalButton1(newInternalButton1),
               .newInternalButton2(newInternalButton2),
@@ -50,7 +51,7 @@ module ElevatorControlWCommunicator#(parameter CLKFRQ = 100000000,
           .newRealFloorButton(newRealFloorButton),
           .newInternalButton1(newInternalButton1),
           .newInternalButton2(newInternalButton2),
-          /* .newInternalbutton3(newInternalbutton3), */
+          .newInternalbutton3(newInternalbutton3)
           .currentRealFloorButton(currentRealFloorButton),
           .currentInternalButton1(currentInternalButton1),
           .currentFloor1(currentFloor1),
@@ -59,10 +60,10 @@ module ElevatorControlWCommunicator#(parameter CLKFRQ = 100000000,
           .currentInternalButton2(currentInternalButton2),
           .currentFloor2(currentFloor2),
           .currentDirection2(currentDirection2),
-          .doorState2(doorState2));
-/*        , .currentInternalButton3(currentInternalButton3),
+          .doorState2(doorState2)
+          .currentInternalButton3(currentInternalButton3),
           .currentFloor3(currentFloor3),
           .currentDirection3(currentDirection3),
-          .doorState3(doorState3)); */
+          .doorState3(doorState3));
 
 endmodule // ElevatorControlWCommunicator
